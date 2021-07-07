@@ -1,13 +1,23 @@
 <html syle="height: 100%;">
     
-    <head>
-        <meta name="viewport" content="width=device-width, minimum-scale=0.1">
-        <link rel="stylesheet" href="../static/assets/css/standard.css">
-        <title>Document</title>
+<head>
+
+    <meta name="viewport" content="width=device-width, minimum-scale=0.1">
+    <link rel="stylesheet" href="{{ url_for('static',filename='assets/css/standard.css') }}">
+    <title>SReader</title>
+
 </head>
+
 <body style="margin: 0px; background: #212121; height: 100%">
 
-    <img class="PB0mN" src="https://img.mghubcdn.com/file/imghub/vagabond/327/1.jpg">
+
+
+    <img class="PB0mN" src="{{chapterImageURL}}">
+
+    <a href="/" class="arrow left">
+
+    <a href="#google" class="arrow right">
     
 </body>
+
 </html>

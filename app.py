@@ -23,19 +23,17 @@ def manga():
 
     return render_template("apartamento.html")
 
-@app.route("/downloadManga/<mangaName>/", methods=["GET"])
+@app.route("/downloadManga/<mangaName>/<chapterNumber>/<pageNumber>", methods=["GET"])
 
-def downloadManga(mangaName):
+def downloadManga(mangaName, chapterNumber, pageNumber):
 
     mangaURL = "https://mangahub.io/manga/" + mangaName
-
-    chapterNumber = "1"
 
     chapterListURLArray = getChapterList(mangaURL, mangaName)
 
     chapterImagesURLArray = getIndividualChapterImagesArray(chapterListURLArray, mangaName, chapterNumber)
 
-    return redirect(chapterImagesURLArray[0])
+    return render_template("reader.html", chapterImageURL = chapterImagesURLArray[pageNumber], chapterImageURLNext = chapterImagesURLArray[pageNumber + 1])
 
 
 def getChapterList(mangaURL, mangaName):
