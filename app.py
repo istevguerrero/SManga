@@ -1,7 +1,5 @@
 from flask import Flask, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
-
-
 import requests
 from bs4 import BeautifulSoup
 import cloudscraper
@@ -25,69 +23,63 @@ def manga():
 
     return render_template("apartamento.html")
 
-@app.route("/downloadManga")
+@app.route("/downloadManga/<mangaName>/", methods=["GET"])
 
-def downloadManga():
+def downloadManga(mangaName):
 
-    mangaCode = "the-god-of-high-school_102"
+    mangaURL = "https://mangahub.io/manga/" + mangaName
 
-    chapterSeedUrl = "https://mangahub.io/manga/" + mangaCode
+    chapterNumber = "1"
 
-    chapterListArray = getChapterList(chapterSeedUrl, mangaCode)
+    chapterListURLArray = getChapterList(mangaURL, mangaName)
 
-    imageURL = getIndividualChapterImagesArray(chapterListArray, 1)
+    chapterImagesURLArray = getIndividualChapterImagesArray(chapterListURLArray, mangaName, chapterNumber)
 
-    return redirect(imageURL)
+    return redirect(chapterImagesURLArray[0])
 
 
-def getChapterList(chapterSeedUrl, mangaCode):
+def getChapterList(mangaURL, mangaName):
 
-    response = requests.get(chapterSeedUrl)
+    response = requests.get(mangaURL)
 
     soup = BeautifulSoup(response.text, 'html.parser')
 
     images = soup.find_all("a")
 
-    chapterListArray = []
+    chapterListURLArray = []
 
     for image in images:
 
         imageHref = str(image.get("href"))
 
-        if( "https://mangahub.io/chapter/" + mangaCode + "/chapter-" in imageHref):
+        if( "https://mangahub.io/chapter/" + mangaName + "/chapter-" in imageHref):
 
-            chapterListArray.append(str(image.get("href")))
+            chapterListURLArray.append(str(image.get("href")))
 
-    return chapterListArray.reverse()
+    return chapterListURLArray.reverse()
 
-def getIndividualChapterImagesArray(chapterListArray, chapterNumber):
+def getIndividualChapterImagesArray(chapterListURLArray, mangaName, chapterNumber):
 
     scraper = cloudscraper.create_scraper()
 
-    response = scraper.post("https://api.mghubcdn.com/graphql", data={"query":"{chapter(x:m01,slug:\"the-god-of-high-school_102\",number:2){id,title,mangaID,number,slug,date,pages,noAd,manga{id,title,slug,mainSlug,author,isWebtoon,isYaoi,isPorn,isSoftPorn,unauthFile,isLicensed}}}"})
+    response = scraper.post("https://api.mghubcdn.com/graphql", data={"query":"{chapter(x:m01,slug:\"" + mangaName + "\",number:" + chapterNumber + "){id,title,mangaID,number,slug,date,pages,noAd,manga{id,title,slug,mainSlug,author,isWebtoon,isYaoi,isPorn,isSoftPorn,unauthFile,isLicensed}}}"})
 
     soup = json.loads(response.text)
 
-    imageCodeArray = []
+    chapterImagesURLArray = []
 
     for imageCode in (json.loads(soup["data"]["chapter"]["pages"])).values():
 
-        imageCodeArray.append(imageCode)
+        chapterImagesURLArray.append("https://img.mghubcdn.com/file/imghub/" + imageCode)
 
-    print(imageCodeArray)
+    print(chapterImagesURLArray)
 
-    imageURL = "https://img.mghubcdn.com/file/imghub/" + imageCodeArray[0]
+    return chapterImagesURLArray
 
-    print(imageURL)
 
-    return imageURL
-
-@app.route("/manga/<mangaName") 
-
+if(__name__ == "__main__"):
 
 
     
-
-if(__name__ == "__main__"):
 
     app.run(debug=True)
