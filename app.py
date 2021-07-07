@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -29,15 +29,15 @@ def manga():
 
 def downloadManga():
 
-    mangaCode = "vagabond_119"
+    mangaCode = "the-god-of-high-school_102"
 
     chapterSeedUrl = "https://mangahub.io/manga/" + mangaCode
 
     chapterListArray = getChapterList(chapterSeedUrl, mangaCode)
 
-    getIndividualChapterImagesArray(chapterListArray, 0)
+    imageURL = getIndividualChapterImagesArray(chapterListArray, 1)
 
-    return "Welcome"
+    return redirect(imageURL)
 
 
 def getChapterList(chapterSeedUrl, mangaCode):
@@ -64,7 +64,7 @@ def getIndividualChapterImagesArray(chapterListArray, chapterNumber):
 
     scraper = cloudscraper.create_scraper()
 
-    response = scraper.post("https://api.mghubcdn.com/graphql", data={"query":"{chapter(x:m01,slug:\"vagabond_119\",number:1){id,title,mangaID,number,slug,date,pages,noAd,manga{id,title,slug,mainSlug,author,isWebtoon,isYaoi,isPorn,isSoftPorn,unauthFile,isLicensed}}}"})
+    response = scraper.post("https://api.mghubcdn.com/graphql", data={"query":"{chapter(x:m01,slug:\"the-god-of-high-school_102\",number:2){id,title,mangaID,number,slug,date,pages,noAd,manga{id,title,slug,mainSlug,author,isWebtoon,isYaoi,isPorn,isSoftPorn,unauthFile,isLicensed}}}"})
 
     soup = json.loads(response.text)
 
@@ -74,13 +74,15 @@ def getIndividualChapterImagesArray(chapterListArray, chapterNumber):
 
         imageCodeArray.append(imageCode)
 
+    print(imageCodeArray)
+
     imageURL = "https://img.mghubcdn.com/file/imghub/" + imageCodeArray[0]
 
     print(imageURL)
 
-    return "hola"
+    return imageURL
 
-    
+@app.route("/manga/<mangaName") 
 
 
 
