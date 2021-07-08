@@ -23,7 +23,7 @@ def manga():
 
     return render_template("apartamento.html")
 
-@app.route("/downloadManga/<mangaName>/<chapterNumber>/<pageNumber>", methods=["GET"])
+@app.route("/downloadManga/<mangaName>/<chapterNumber>/<int:pageNumber>", methods=["GET"])
 
 def downloadManga(mangaName, chapterNumber, pageNumber):
 
@@ -33,7 +33,19 @@ def downloadManga(mangaName, chapterNumber, pageNumber):
 
     chapterImagesURLArray = getIndividualChapterImagesArray(chapterListURLArray, mangaName, chapterNumber)
 
-    return render_template("reader.html", chapterImageURL = chapterImagesURLArray[pageNumber], chapterImageURLNext = chapterImagesURLArray[pageNumber + 1])
+    chapterImage = chapterImagesURLArray[pageNumber]
+
+    chapterImageNext = chapterImagesURLArray[pageNumber + 1]
+
+    if(pageNumber > 1):
+
+        chapterImagePrevious = chapterImagesURLArray[pageNumber - 1]
+
+    else:
+
+        chapterImagePrevious = "#"
+
+    return render_template("reader.html", chapterImage = chapterImage , chapterImageNext = chapterImageNext, chapterImagePrevious = chapterImagePrevious)
 
 
 def getChapterList(mangaURL, mangaName):
@@ -76,8 +88,5 @@ def getIndividualChapterImagesArray(chapterListURLArray, mangaName, chapterNumbe
 
 
 if(__name__ == "__main__"):
-
-
-    
 
     app.run(debug=True)
